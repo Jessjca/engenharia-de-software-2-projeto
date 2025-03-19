@@ -1,0 +1,16 @@
+# Arquivos compilados
+bin/
+target/
+
+# Banco de dados
+*.db
+
+# Configurações do VS Code
+.vscode/
+
+# Arquivos do Maven
+.mvn/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db 
