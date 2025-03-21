@@ -71,13 +71,16 @@ public class Main {
 
         gbc.gridwidth = 1;
         gbc.gridy = 1;
-        TextShadowLabel emailLabel = new TextShadowLabel("Email:");
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Arial", Font.BOLD, 15));
         emailLabel.setForeground(Color.BLACK);
         panel.add(emailLabel, gbc);
         gbc.gridy = 2;
         panel.add(emailField, gbc);
         gbc.gridy = 3;
-        TextShadowLabel senhaLabel = new TextShadowLabel("Senha:");
+        
+        JLabel senhaLabel = new JLabel("Senha:");
+        senhaLabel.setFont(new Font("Arial", Font.BOLD, 15));
         senhaLabel.setForeground(Color.BLACK);
         panel.add(senhaLabel, gbc);
         gbc.gridy = 4;
@@ -88,8 +91,8 @@ public class Main {
         panel.add(cadastroButton, gbc);
 
         // Estilização dos componentes
-        Color corFundo = new Color(0, 0, 0, 150);
-        Color corTexto = Color.WHITE;
+        Color corFundo = Color.WHITE;
+        Color corTexto = Color.BLACK;
         Color corBotao = new Color(70, 130, 180);
 
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
@@ -221,23 +224,37 @@ public class Main {
         JButton cadastrarButton = new JButton("Cadastrar");
 
         gbc.gridy = 0;
-        panel.add(new TextShadowLabel("Nome:"), gbc);
+        // panel.add(new TextShadowLabel("Nome:"), gbc);
+        JLabel nomeLabel = new JLabel("Nome:");
+        nomeLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        panel.add(nomeLabel, gbc);
+
         gbc.gridy = 1;
         panel.add(nomeField, gbc);
+
         gbc.gridy = 2;
-        panel.add(new TextShadowLabel("Email:"), gbc);
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        panel.add(emailLabel, gbc);
+
         gbc.gridy = 3;
         panel.add(emailField, gbc);
+
         gbc.gridy = 4;
-        panel.add(new TextShadowLabel("Senha:"), gbc);
+        // panel.add(new TextShadowLabel("Senha:"), gbc);
+        JLabel senhaLabel = new JLabel("Senha:");
+        senhaLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        panel.add(senhaLabel, gbc);
+
         gbc.gridy = 5;
         panel.add(senhaField, gbc);
+
         gbc.gridy = 6;
         panel.add(cadastrarButton, gbc);
 
         // Estilização
-        Color corFundo = new Color(0, 0, 0, 150);
-        Color corTexto = Color.WHITE;
+        Color corFundo = Color.WHITE;
+        Color corTexto = Color.BLACK;
         Color corBotao = new Color(70, 130, 180);
 
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
@@ -338,22 +355,36 @@ public class Main {
         JButton criarButton = new JButton("Criar");
 
         gbc.gridy = 0;
-        panel.add(new TextShadowLabel("Data (dd/mm/aaaa):"), gbc);
+        // panel.add(new TextShadowLabel("Data (dd/mm/aaaa):"), gbc);
+
+        JLabel dataLabel = new JLabel("Data (dd/mm/aaaa):");
+        dataLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        panel.add(dataLabel, gbc);
+
         gbc.gridy = 1;
         panel.add(dataField, gbc);
+
+
         gbc.gridy = 2;
-        panel.add(new TextShadowLabel("Hora (hh:mm):"), gbc);
+        JLabel horaLabel = new JLabel("Hora (hh:mm):");
+        horaLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        panel.add(horaLabel, gbc);
+
         gbc.gridy = 3;
         panel.add(horaField, gbc);
+
         gbc.gridy = 4;
-        panel.add(new TextShadowLabel("Descrição:"), gbc);
+        JLabel descricaoLabel = new JLabel("Descrição:");
+        descricaoLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        panel.add(descricaoLabel, gbc);
+
         gbc.gridy = 5;
         panel.add(descricaoField, gbc);
         gbc.gridy = 6;
         panel.add(criarButton, gbc);
 
         // Estilização
-        Color corFundo = new Color(0, 0, 0, 150);
+        Color corFundo = Color.WHITE;
         Color corTexto = Color.WHITE;
         Color corBotao = new Color(70, 130, 180);
 
@@ -465,8 +496,8 @@ public class Main {
         inputGbc.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel inputLabel = new JLabel("Digite o número do agendamento para cancelar:");
-        inputLabel.setForeground(Color.WHITE);
-        inputLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        inputLabel.setForeground(Color.BLACK);
+        inputLabel.setFont(new Font("Arial", Font.BOLD, 16));
         inputGbc.gridy = 0;
         inputPanel.add(inputLabel, inputGbc);
 
@@ -491,8 +522,8 @@ public class Main {
         panel.add(confirmarButton, gbc);
 
         // Estilização
-        Color corFundo = new Color(0, 0, 0, 150);
-        Color corTexto = Color.WHITE;
+        Color corFundo = Color.WHITE;
+        Color corTexto = Color.BLACK;
         Color corBotao = new Color(70, 130, 180);
 
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
