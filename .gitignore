@@ -1,16 +1,28 @@
 # Arquivos compilados
 bin/
-target/
+*.class
+*.jar
 
-# Banco de dados
-*.db
-
-# Configurações do VS Code
+# Arquivos de IDE
+.idea/
 .vscode/
+*.iml
+.project
+.classpath
+.settings/
 
-# Arquivos do Maven
-.mvn/
+# Arquivos de banco de dados
+*.db
+*.sqlite
+*.sqlite3
 
-# Arquivos de sistema
-.DS_Store
-Thumbs.db 
+# Arquivos de log
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+*~
+
+# Dependências
+lib/

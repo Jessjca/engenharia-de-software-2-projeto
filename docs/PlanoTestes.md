@@ -1,214 +1,240 @@
-# Plano de Testes
+# Plano de Testes - Sistema de Agendamento de Compromissos
 
 ## 1. Introdução
-
-Este documento descreve o plano de testes para o Sistema de Agenda, definindo as estratégias, níveis e tipos de testes necessários para garantir a qualidade do software.
+Este documento descreve o plano de testes para o Sistema de Agendamento de Compromissos, desenvolvido seguindo a arquitetura MVC (Model-View-Controller). O plano abrange testes unitários e de integração para cada camada do sistema.
 
 ## 2. Objetivos
-
-- Verificar a funcionalidade do sistema
-- Validar a interface do usuário
-- Garantir a integridade dos dados
-- Identificar e corrigir defeitos
-- Avaliar a performance
+- Validar o funcionamento correto de cada componente do sistema
+- Garantir a integração adequada entre as camadas MVC
+- Identificar e corrigir defeitos no código
+- Manter a qualidade do software durante o desenvolvimento
+- Validar a separação de responsabilidades da arquitetura MVC
 
 ## 3. Estratégia de Testes
 
-### 3.1 Níveis de Teste
+### 3.1 Testes por Camada
+- **Model**: Testes unitários das classes de modelo e acesso a dados
+- **View**: Testes de interface e componentes visuais
+- **Controller**: Testes de lógica de negócio e integração entre Model e View
 
-#### 3.1.1 Testes Unitários
-- Testes das classes individuais
-- Cobertura de métodos e funções
-- Validação de regras de negócio
-- Limpeza do banco de dados antes e depois de cada teste
-
-#### 3.1.2 Testes de Integração
-- Testes entre componentes
-- Validação de fluxos de dados
-- Verificação de comunicação entre camadas
-
-#### 3.1.3 Testes de Sistema
-- Testes end-to-end
-- Validação de funcionalidades completas
-- Verificação de requisitos não funcionais
-
-### 3.2 Tipos de Teste
-
-#### 3.2.1 Testes Funcionais
-- Validação de funcionalidades
-- Verificação de regras de negócio
-- Testes de casos de uso
-
-#### 3.2.2 Testes de Interface
-- Validação da interface gráfica
-- Verificação de usabilidade
-- Testes de interação do usuário
-
-#### 3.2.3 Testes de Banco de Dados
-- Validação de operações CRUD
-- Verificação de integridade
-- Testes de transações
-- Limpeza automática do banco entre testes
+### 3.2 Tipos de Testes
+- Testes unitários
+- Testes de integração
+- Testes de interface
 
 ## 4. Ambiente de Testes
 
 ### 4.1 Requisitos
-- JDK 17 ou superior
-- SQLite 3
-- Sistema operacional Windows 10 ou superior
+- JDK 11 ou superior
 - JUnit 4.13.2
+- SQLite para testes
+- IDE com suporte a testes
 
 ### 4.2 Configuração
-- Banco de dados SQLite local
-- Limpeza automática do banco entre testes
-- Ambiente isolado de produção
+- Banco de dados SQLite para testes
+- Dependências do JUnit configuradas
+- Ambiente isolado para testes
 
 ## 5. Casos de Teste
 
-### 5.1 Testes de Usuário
+### 5.1 Testes do Model
 
-#### 5.1.1 Cadastro de Usuário
+#### 5.1.1 UsuarioTest
 ```java
 @Test
-public void testCadastrarUsuario() {
-    Usuario usuario = new Usuario("Teste", "teste@email.com", "senha123");
-    assertTrue(db.cadastrarUsuario(usuario));
+public void testCriarUsuario() {
+    Usuario usuario = new Usuario();
+    usuario.setNome("Teste");
+    usuario.setEmail("teste@email.com");
+    usuario.setSenha("123456");
+    
+    assertEquals("Teste", usuario.getNome());
+    assertEquals("teste@email.com", usuario.getEmail());
+    assertEquals("123456", usuario.getSenha());
+}
+
+@Test
+public void testValidarEmail() {
+    Usuario usuario = new Usuario();
+    usuario.setEmail("email.invalido");
+    assertFalse(usuario.validarEmail());
+    
+    usuario.setEmail("email@valido.com");
+    assertTrue(usuario.validarEmail());
+}
+
+@Test
+public void testValidarSenha() {
+    Usuario usuario = new Usuario();
+    usuario.setSenha("123");
+    assertFalse(usuario.validarSenha());
+    
+    usuario.setSenha("123456");
+    assertTrue(usuario.validarSenha());
 }
 ```
 
-#### 5.1.2 Login
-```java
-@Test
-public void testLoginCredenciaisValidas() {
-    Usuario usuario = new Usuario("Teste", "teste@email.com", "senha123");
-    db.cadastrarUsuario(usuario);
-    assertNotNull(db.buscarUsuario("teste@email.com"));
-}
-```
-
-### 5.2 Testes de Agendamento
-
-#### 5.2.1 Criação de Agendamento
+#### 5.1.2 AgendamentoTest
 ```java
 @Test
 public void testCriarAgendamento() {
-    Agendamento agendamento = new Agendamento(1, "2024-03-20", "14:00", "Reunião");
+    Agendamento agendamento = new Agendamento();
+    agendamento.setUsuarioId(1);
+    agendamento.setData(new Date());
+    agendamento.setHora("14:00");
+    agendamento.setDescricao("Reunião");
+    
+    assertEquals(1, agendamento.getUsuarioId());
+    assertEquals("14:00", agendamento.getHora());
+    assertEquals("Reunião", agendamento.getDescricao());
+}
+
+@Test
+public void testValidarData() {
+    Agendamento agendamento = new Agendamento();
+    Date dataPassada = new Date(System.currentTimeMillis() - 86400000);
+    agendamento.setData(dataPassada);
+    assertFalse(agendamento.validarData());
+    
+    Date dataFutura = new Date(System.currentTimeMillis() + 86400000);
+    agendamento.setData(dataFutura);
+    assertTrue(agendamento.validarData());
+}
+```
+
+#### 5.1.3 DatabaseManagerTest
+```java
+@Test
+public void testCadastrarUsuario() {
+    DatabaseManager db = new DatabaseManager();
+    Usuario usuario = new Usuario();
+    usuario.setNome("Teste");
+    usuario.setEmail("teste@email.com");
+    usuario.setSenha("123456");
+    
+    assertTrue(db.cadastrarUsuario(usuario));
+}
+
+@Test
+public void testBuscarUsuario() {
+    DatabaseManager db = new DatabaseManager();
+    Usuario usuario = db.buscarUsuario("teste@email.com");
+    assertNotNull(usuario);
+    assertEquals("Teste", usuario.getNome());
+}
+
+@Test
+public void testCriarAgendamento() {
+    DatabaseManager db = new DatabaseManager();
+    Agendamento agendamento = new Agendamento();
+    agendamento.setUsuarioId(1);
+    agendamento.setData(new Date());
+    agendamento.setHora("14:00");
+    agendamento.setDescricao("Reunião");
+    
     assertTrue(db.criarAgendamento(agendamento));
 }
 ```
 
-#### 5.2.2 Validação de Data
+### 5.2 Testes do Controller
+
+#### 5.2.1 MainControllerTest
 ```java
 @Test
-public void testValidarData() {
-    Agendamento agendamento = new Agendamento(1, "2024-03-20", "14:00", "Reunião");
-    assertTrue(agendamento.validarData("2024-03-20"));
-    assertFalse(agendamento.validarData("2023-01-01")); // Data passada
+public void testLogin() {
+    MainController controller = new MainController();
+    assertTrue(controller.login("teste@email.com", "123456"));
+    assertFalse(controller.login("email@invalido.com", "senha"));
+}
+
+@Test
+public void testCriarAgendamento() {
+    MainController controller = new MainController();
+    Date data = new Date();
+    assertTrue(controller.criarAgendamento(1, data, "14:00", "Reunião"));
+    assertFalse(controller.criarAgendamento(1, data, "20:00", "Reunião"));
+}
+
+@Test
+public void testExcluirAgendamento() {
+    MainController controller = new MainController();
+    assertTrue(controller.excluirAgendamento(1));
+    assertFalse(controller.excluirAgendamento(999));
 }
 ```
 
-#### 5.2.3 Validação de Hora
+### 5.3 Testes da View
+
+#### 5.3.1 MainViewTest
 ```java
 @Test
-public void testValidarHora() {
-    Agendamento agendamento = new Agendamento(1, "2024-03-20", "14:00", "Reunião");
-    assertTrue(agendamento.validarHora("14:00"));
-    assertFalse(agendamento.validarHora("25:00")); // Hora inválida
+public void testInicializacao() {
+    MainView view = new MainView();
+    assertNotNull(view);
+    assertTrue(view.isVisible());
+}
+
+@Test
+public void testComponentesLogin() {
+    MainView view = new MainView();
+    JPanel loginPanel = view.criarPainelLogin();
+    assertNotNull(loginPanel);
+    assertTrue(loginPanel.isVisible());
+}
+
+@Test
+public void testComponentesAgendamento() {
+    MainView view = new MainView();
+    JPanel agendamentoPanel = view.criarPainelAgendamento();
+    assertNotNull(agendamentoPanel);
+    assertTrue(agendamentoPanel.isVisible());
 }
 ```
 
-## 6. Procedimentos de Teste
+## 6. Procedimentos de Execução
 
-### 6.1 Preparação
-1. Configurar ambiente de teste
-2. Verificar conexão com o banco
-3. Executar script de limpeza do banco
+### 6.1 Execução dos Testes
+```bash
+# Compilar testes
+javac -cp "bin;lib/*" -d bin src/test/java/model/*.java src/test/java/controller/*.java src/test/java/view/*.java
 
-### 6.2 Execução
-1. Executar testes unitários
-2. Verificar resultados
-3. Documentar falhas
+# Executar testes
+java -cp "bin;lib/*" org.junit.runner.JUnitCore model.UsuarioTest model.AgendamentoTest model.DatabaseManagerTest controller.MainControllerTest view.MainViewTest
+```
 
-### 6.3 Análise
-1. Verificar resultados
-2. Identificar defeitos
-3. Priorizar correções
-4. Documentar problemas
+### 6.2 Ordem de Execução
+1. Testes do Model
+2. Testes do Controller
+3. Testes da View
+4. Testes de Integração
 
 ## 7. Critérios de Aceitação
-
-### 7.1 Funcionais
-- Todas as funcionalidades implementadas
-- Regras de negócio atendidas
-- Fluxos de dados corretos
-- Testes unitários passando
-
-### 7.2 Não Funcionais
-- Tempo de resposta < 2 segundos
-- Interface responsiva
-- Dados persistentes
+- Todos os testes devem passar
+- Cobertura de código mínima de 80%
+- Separação clara de responsabilidades entre as camadas MVC
+- Interface responsiva e funcional
+- Validações de dados funcionando corretamente
 
 ## 8. Ferramentas de Teste
-
-### 8.1 Testes Unitários
-- JUnit 4.13.2
-- SQLite JDBC Driver
-
-### 8.2 Testes de Interface
-- Testes manuais
-- Checklist de verificação
-
-### 8.3 Banco de Dados
-- SQLite 3
-- Scripts de limpeza automática
+- JUnit 4.13.2 para testes unitários e de integração
+- SQLite para banco de dados de teste
 
 ## 9. Cronograma
-
-### 9.1 Fase 1 - Testes Unitários
-- Duração: 1 semana
-- Foco: Classes individuais
-- Implementação de testes automatizados
-
-### 9.2 Fase 2 - Testes de Integração
-- Duração: 1 semana
-- Foco: Componentes e fluxos
-
-### 9.3 Fase 3 - Testes de Sistema
-- Duração: 1 semana
-- Foco: Funcionalidades completas
+- Desenvolvimento dos testes: 1 semana
+- Execução inicial: 2 dias
+- Correções e ajustes: 3 dias
 
 ## 10. Responsabilidades
-
-### 10.1 Equipe de Testes
-- Desenvolvedores
-- Testadores
-- Analistas de qualidade
-
-### 10.2 Papéis
-- Coordenador de testes
-- Executores de teste
-- Analistas de defeitos
+- Desenvolvedores: Implementação dos testes
+- QA: Revisão e validação
+- Scrum Master: Acompanhamento do progresso
 
 ## 11. Documentação
-
-### 11.1 Artefatos
-- Casos de teste
-- Resultados
-- Relatórios de defeitos
-
-### 11.2 Templates
-- Plano de teste
-- Caso de teste
-- Relatório de defeito
+- Testes documentados com comentários
+- Relatórios de execução
+- Documentação de casos de teste mantida atualizada
 
 ## 12. Manutenção
-
-### 12.1 Atualização
-- Revisão periódica
-- Atualização de casos
-- Adaptação a mudanças
-
-### 12.2 Versionamento
-- Controle de versão
-- Histórico de alterações
-- Rastreabilidade 
+- Atualização dos testes conforme novas funcionalidades
+- Revisão periódica da cobertura de testes
+- Ajustes necessários identificados durante execução 
