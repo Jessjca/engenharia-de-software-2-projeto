@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.io.File;
 
 public class Main {
     private static ArrayList<Usuario> usuarios = new ArrayList<>();
@@ -11,10 +12,12 @@ public class Main {
     private static JPanel mainPanel;
     private static CardLayout cardLayout;
     private static final Dimension TAMANHO_PADRAO = new Dimension(800, 600);
+    private static DatabaseManager db;
 
     public static void main(String[] args) {
         // Inicializar o banco de dados
-        DatabaseManager.inicializar();
+        db = new DatabaseManager();
+        db.inicializarBanco();
         
         SwingUtilities.invokeLater(() -> {
             criarInterface();
@@ -73,7 +76,7 @@ public class Main {
         gbc.gridy = 1;
         JLabel emailLabel = new JLabel("Email:");
         emailLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        emailLabel.setForeground(Color.BLACK);
+        emailLabel.setForeground(Color.WHITE);
         panel.add(emailLabel, gbc);
         gbc.gridy = 2;
         panel.add(emailField, gbc);
@@ -81,7 +84,7 @@ public class Main {
         
         JLabel senhaLabel = new JLabel("Senha:");
         senhaLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        senhaLabel.setForeground(Color.BLACK);
+        senhaLabel.setForeground(Color.WHITE);
         panel.add(senhaLabel, gbc);
         gbc.gridy = 4;
         panel.add(senhaField, gbc);
@@ -91,8 +94,8 @@ public class Main {
         panel.add(cadastroButton, gbc);
 
         // Estilização dos componentes
-        Color corFundo = Color.WHITE;
-        Color corTexto = Color.BLACK;
+        Color corFundo = new Color(0, 0, 0, 150);
+        Color corTexto = Color.WHITE;
         Color corBotao = new Color(70, 130, 180);
 
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
@@ -105,7 +108,7 @@ public class Main {
         cadastroButton.setBackground(corBotao);
         cadastroButton.setForeground(corTexto);
 
-        // Ações dos botões
+        // Adicionar eventos
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String senha = new String(senhaField.getPassword());
@@ -113,7 +116,7 @@ public class Main {
         });
 
         cadastroButton.addActionListener(e -> {
-            mostrarTelaCadastro();
+            cardLayout.show(mainPanel, "cadastro");
         });
 
         return panel;
@@ -179,10 +182,10 @@ public class Main {
     }
 
     private static void fazerLogin(String email, String senha) {
-        Usuario usuario = DatabaseManager.buscarUsuario(email, senha);
-        if (usuario != null) {
+        Usuario usuario = db.buscarUsuario(email);
+        if (usuario != null && usuario.validarSenha(senha)) {
             usuarioLogado = usuario;
-            agendamentos = DatabaseManager.buscarAgendamentos(usuario);
+            agendamentos = db.listarAgendamentos(1); // TODO: Implementar busca por ID do usuário
             cardLayout.show(mainPanel, "principal");
         } else {
             JOptionPane.showMessageDialog(frame, "Email ou senha incorretos!", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -194,22 +197,32 @@ public class Main {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                ImageIcon icon = new ImageIcon("src/main/resources/background.jpg");
-                Image img = icon.getImage();
-                g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+                try {
+                    // Carrega a imagem como um recurso
+                    java.net.URL imageUrl = getClass().getResource("/resources/background.jpg");
+                    if (imageUrl == null) {
+                        System.out.println("Imagem não encontrada nos recursos!");
+                        return;
+                    }
+                    
+                    System.out.println("Carregando imagem de: " + imageUrl);
+                    ImageIcon icon = new ImageIcon(imageUrl);
+                    if (icon.getImageLoadStatus() != MediaTracker.COMPLETE) {
+                        System.out.println("Erro ao carregar imagem!");
+                    } else {
+                        System.out.println("Imagem carregada com sucesso!");
+                    }
+                    
+                    Image img = icon.getImage();
+                    g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+                } catch (Exception e) {
+                    System.out.println("Erro ao carregar imagem: " + e.getMessage());
+                }
             }
         };
     }
 
-    private static void mostrarTelaCadastro() {
-        JDialog dialog = new JDialog(frame, "Cadastro de Usuário", true);
-        dialog.setSize(TAMANHO_PADRAO);
-        dialog.setLocationRelativeTo(frame);
-        dialog.setResizable(false);
-
-        JPanel backgroundPanel = criarPainelFundo();
-        backgroundPanel.setLayout(new BorderLayout());
-
+    private static JPanel criarPainelCadastro() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         panel.setOpaque(false);
@@ -218,43 +231,62 @@ public class Main {
         gbc.gridwidth = 2;
         gbc.insets = new Insets(5, 5, 5, 5);
 
+        // Título
+        TextShadowLabel titulo = new TextShadowLabel("Cadastro de Usuário");
+        titulo.setFont(new Font("Arial", Font.BOLD, 24));
+        titulo.setForeground(Color.WHITE);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(titulo, gbc);
+
+        // Campos de cadastro
         JTextField nomeField = new JTextField(20);
         JTextField emailField = new JTextField(20);
         JPasswordField senhaField = new JPasswordField(20);
+        JPasswordField confirmarSenhaField = new JPasswordField(20);
         JButton cadastrarButton = new JButton("Cadastrar");
+        JButton voltarButton = new JButton("Voltar");
 
-        gbc.gridy = 0;
-        // panel.add(new TextShadowLabel("Nome:"), gbc);
+        gbc.gridwidth = 1;
+        gbc.gridy = 1;
         JLabel nomeLabel = new JLabel("Nome:");
         nomeLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        nomeLabel.setForeground(Color.WHITE);
         panel.add(nomeLabel, gbc);
-
-        gbc.gridy = 1;
-        panel.add(nomeField, gbc);
-
         gbc.gridy = 2;
+        panel.add(nomeField, gbc);
+        gbc.gridy = 3;
+        
         JLabel emailLabel = new JLabel("Email:");
         emailLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        emailLabel.setForeground(Color.WHITE);
         panel.add(emailLabel, gbc);
-
-        gbc.gridy = 3;
-        panel.add(emailField, gbc);
-
         gbc.gridy = 4;
-        // panel.add(new TextShadowLabel("Senha:"), gbc);
+        panel.add(emailField, gbc);
+        gbc.gridy = 5;
+        
         JLabel senhaLabel = new JLabel("Senha:");
         senhaLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        senhaLabel.setForeground(Color.WHITE);
         panel.add(senhaLabel, gbc);
-
-        gbc.gridy = 5;
-        panel.add(senhaField, gbc);
-
         gbc.gridy = 6;
+        panel.add(senhaField, gbc);
+        gbc.gridy = 7;
+        
+        JLabel confirmarSenhaLabel = new JLabel("Confirmar Senha:");
+        confirmarSenhaLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        confirmarSenhaLabel.setForeground(Color.WHITE);
+        panel.add(confirmarSenhaLabel, gbc);
+        gbc.gridy = 8;
+        panel.add(confirmarSenhaField, gbc);
+        gbc.gridy = 9;
         panel.add(cadastrarButton, gbc);
+        gbc.gridy = 10;
+        panel.add(voltarButton, gbc);
 
-        // Estilização
-        Color corFundo = Color.WHITE;
-        Color corTexto = Color.BLACK;
+        // Estilização dos componentes
+        Color corFundo = new Color(0, 0, 0, 150);
+        Color corTexto = Color.WHITE;
         Color corBotao = new Color(70, 130, 180);
 
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
@@ -264,28 +296,27 @@ public class Main {
         emailField.setForeground(corTexto);
         senhaField.setBackground(corFundo);
         senhaField.setForeground(corTexto);
+        confirmarSenhaField.setBackground(corFundo);
+        confirmarSenhaField.setForeground(corTexto);
         cadastrarButton.setBackground(corBotao);
         cadastrarButton.setForeground(corTexto);
+        voltarButton.setBackground(corBotao);
+        voltarButton.setForeground(corTexto);
 
+        // Adicionar eventos
         cadastrarButton.addActionListener(e -> {
             String nome = nomeField.getText();
             String email = emailField.getText();
             String senha = new String(senhaField.getPassword());
-
-            if (nome.isEmpty() || email.isEmpty() || senha.isEmpty()) {
-                JOptionPane.showMessageDialog(dialog, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Usuario novoUsuario = new Usuario(nome, email, senha);
-            DatabaseManager.salvarUsuario(novoUsuario);
-            JOptionPane.showMessageDialog(dialog, "Usuário cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            dialog.dispose();
+            String confirmarSenha = new String(confirmarSenhaField.getPassword());
+            cadastrarUsuario(nome, email, senha, confirmarSenha);
         });
 
-        backgroundPanel.add(panel, BorderLayout.CENTER);
-        dialog.add(backgroundPanel);
-        dialog.setVisible(true);
+        voltarButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "login");
+        });
+
+        return panel;
     }
 
     private static void verAgendamentos() {
@@ -293,7 +324,7 @@ public class Main {
         boolean encontrou = false;
 
         for (Agendamento agendamento : agendamentos) {
-            if (agendamento.getUsuario().equals(usuarioLogado)) {
+            if (agendamento.getUsuarioId() == 1) { // TODO: Implementar busca por ID do usuário
                 sb.append("Data: ").append(agendamento.getData()).append("\n");
                 sb.append("Hora: ").append(agendamento.getHora()).append("\n");
                 sb.append("Descrição: ").append(agendamento.getDescricao()).append("\n");
@@ -404,15 +435,18 @@ public class Main {
             String descricao = descricaoField.getText();
 
             if (data.isEmpty() || hora.isEmpty() || descricao.isEmpty()) {
-                JOptionPane.showMessageDialog(dialog, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Todos os campos são obrigatórios!", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            Agendamento novoAgendamento = new Agendamento(usuarioLogado, data, hora, descricao);
-            DatabaseManager.salvarAgendamento(novoAgendamento);
-            agendamentos.add(novoAgendamento);
-            JOptionPane.showMessageDialog(dialog, "Agendamento criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            dialog.dispose();
+            Agendamento novoAgendamento = new Agendamento(1, data, hora, descricao); // TODO: Implementar busca por ID do usuário
+            if (db.criarAgendamento(novoAgendamento)) {
+                JOptionPane.showMessageDialog(dialog, "Agendamento criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                agendamentos = db.listarAgendamentos(1); // TODO: Implementar busca por ID do usuário
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Erro ao criar agendamento.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         backgroundPanel.add(panel, BorderLayout.CENTER);
@@ -426,7 +460,7 @@ public class Main {
         int contador = 1;
 
         for (Agendamento agendamento : agendamentos) {
-            if (agendamento.getUsuario().equals(usuarioLogado)) {
+            if (agendamento.getUsuarioId() == 1) { // TODO: Implementar busca por ID do usuário
                 sb.append(contador).append(". Data: ").append(agendamento.getData())
                   .append(" Hora: ").append(agendamento.getHora())
                   .append(" Descrição: ").append(agendamento.getDescricao()).append("\n");
@@ -537,10 +571,13 @@ public class Main {
                 int opcao = Integer.parseInt(inputField.getText());
                 if (opcao > 0 && opcao <= agendamentosUsuario.size()) {
                     Agendamento agendamento = agendamentosUsuario.get(opcao - 1);
-                    DatabaseManager.excluirAgendamento(agendamento);
-                    agendamentos.remove(agendamento);
-                    JOptionPane.showMessageDialog(dialog, "Agendamento cancelado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                    dialog.dispose();
+                    if (db.excluirAgendamento(agendamento)) {
+                        agendamentos.remove(agendamento);
+                        JOptionPane.showMessageDialog(dialog, "Agendamento cancelado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Erro ao cancelar agendamento.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(dialog, "Opção inválida!", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
@@ -552,5 +589,25 @@ public class Main {
         backgroundPanel.add(panel, BorderLayout.CENTER);
         dialog.add(backgroundPanel);
         dialog.setVisible(true);
+    }
+
+    private static void cadastrarUsuario(String nome, String email, String senha, String confirmarSenha) {
+        if (nome.isEmpty() || email.isEmpty() || senha.isEmpty() || confirmarSenha.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Todos os campos são obrigatórios!", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!senha.equals(confirmarSenha)) {
+            JOptionPane.showMessageDialog(frame, "As senhas não coincidem!", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Usuario novoUsuario = new Usuario(nome, email, senha);
+        if (db.cadastrarUsuario(novoUsuario)) {
+            JOptionPane.showMessageDialog(frame, "Usuário cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            cardLayout.show(mainPanel, "login");
+        } else {
+            JOptionPane.showMessageDialog(frame, "Erro ao cadastrar usuário. Email já existe.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 } 

@@ -27,14 +27,19 @@ O Sistema de Agenda é uma aplicação desktop desenvolvida em Java, utilizando 
 
 ```
 src/
-└── main/
-    ├── java/              # Classes Java
-    │   ├── Main.java           # Interface principal
-    │   ├── TextShadowLabel.java # Componente customizado
-    │   ├── DatabaseManager.java # Gerenciador do banco
-    │   ├── Usuario.java        # Classe de usuário
-    │   └── Agendamento.java    # Classe de agendamento
-    └── resources/         # Recursos do sistema
+├── main/
+│   ├── java/              # Classes Java
+│   │   ├── Main.java           # Interface principal
+│   │   ├── TextShadowLabel.java # Componente customizado
+│   │   ├── DatabaseManager.java # Gerenciador do banco
+│   │   ├── Usuario.java        # Classe de usuário
+│   │   └── Agendamento.java    # Classe de agendamento
+│   └── resources/         # Recursos do sistema
+└── test/
+    └── java/             # Classes de teste
+        ├── UsuarioTest.java     # Testes de usuário
+        ├── AgendamentoTest.java # Testes de agendamento
+        └── DatabaseManagerTest.java # Testes do banco
 ```
 
 ## 4. Fluxo de Dados
@@ -95,11 +100,19 @@ CREATE TABLE agendamentos (
 - Implementa operações CRUD
 - Trata erros de banco de dados
 - Mantém conexão única
+- Limpa o banco entre testes
 
 ### 6.3 Classes de Domínio
 - Encapsulam dados e regras de negócio
 - Implementam validações
 - Mantêm consistência dos dados
+- Possuem testes unitários
+
+### 6.4 Testes
+- Implementados com JUnit 4.13.2
+- Testes unitários para cada classe
+- Validação de regras de negócio
+- Limpeza automática do banco entre testes
 
 ## 7. Padrões de Design Utilizados
 

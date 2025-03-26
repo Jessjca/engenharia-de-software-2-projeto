@@ -1,5 +1,3 @@
-
-
 public class Usuario {
     private String nome;
     private String email;
@@ -21,5 +19,13 @@ public class Usuario {
 
     public String getSenha() {
         return senha;
+    }
+
+    public boolean validarEmail(String email) {
+        return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
+    }
+
+    public boolean validarSenha(String senha) {
+        return senha != null && senha.equals(this.senha);
     }
 } 

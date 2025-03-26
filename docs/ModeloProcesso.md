@@ -112,14 +112,16 @@ Este documento descreve o modelo de processo utilizado no desenvolvimento do Sis
 - Boas práticas
 
 ### 6.2 Testes
-- Testes unitários
-- Testes de integração
-- Testes de sistema
+- Testes unitários com JUnit 4.13.2
+- Validação de regras de negócio
+- Limpeza automática do banco entre testes
+- Cobertura de casos de uso principais
 
 ### 6.3 Métricas
 - Cobertura de testes
 - Complexidade de código
 - Tempo de resposta
+- Taxa de sucesso dos testes
 
 ## 7. Gestão de Configuração
 
@@ -173,6 +175,7 @@ Este documento descreve o modelo de processo utilizado no desenvolvimento do Sis
 - IDE: VSCode
 - Versionamento: Git
 - Banco de dados: SQLite
+- Framework de testes: JUnit 4.13.2
 
 ### 10.2 Gestão
 - Backlog: GitHub Projects

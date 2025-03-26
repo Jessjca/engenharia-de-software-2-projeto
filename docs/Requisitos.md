@@ -158,14 +158,21 @@ Este documento descreve os requisitos funcionais e não funcionais do Sistema de
 ## 7. Requisitos de Teste
 
 ### 7.1 Cobertura
-- Testes unitários: 80%
-- Testes de integração: 70%
-- Testes de sistema: 60%
+- Testes unitários com JUnit 4.13.2
+- Validação de regras de negócio
+- Limpeza automática do banco entre testes
+- Cobertura dos casos de uso principais:
+  - Cadastro de usuário
+  - Login
+  - Criação de agendamento
+  - Validação de data e hora
 
 ### 7.2 Qualidade
 - Zero bugs críticos
 - Máximo 5 bugs não críticos
 - Performance dentro dos limites
+- Testes automatizados executando com sucesso
+- Banco de dados limpo entre testes
 
 ## 8. Requisitos de Documentação
 
