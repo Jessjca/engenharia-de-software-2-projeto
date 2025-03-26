@@ -1,7 +1,7 @@
 # Sistema de Agendamento de Compromissos
 
 ## Sobre o Projeto
-Sistema desenvolvido em Java para gerenciamento de compromissos e agendamentos, permitindo que usuários cadastrem, visualizem e gerenciem seus compromissos de forma eficiente.
+Sistema desenvolvido em Java para gerenciamento de compromissos e agendamentos, permitindo que usuários cadastrem, visualizem e gerenciem seus compromissos de forma simples.
 
 ## Estrutura do Projeto
 ```
@@ -19,7 +19,7 @@ src/
 ## Requisitos
 - JDK 11 ou superior
 - JUnit 4.13.2
-- SQLite (incluído no projeto)
+- SQLite
 
 ## Como Executar
 1. Clone o repositório
@@ -44,12 +44,16 @@ src/
 
 ## Documentação
 A documentação completa do projeto está disponível na pasta `docs/`:
-- [Modelo de Processo](docs/ModeloProcesso.md)
-- [Especificação de Requisitos](docs/EspecificacaoRequisitos.md)
-- [Projeto Arquitetural](docs/ProjetoArquitetural.md)
-- [Plano de Testes](docs/PlanoTestes.md)
-- [Manual do Usuário](docs/ManualUsuario.md)
-- [Manual do Desenvolvedor](docs/ManualDesenvolvedor.md)
+- [Relatório técnico](docs/ModeloProcesso.md)
+- Diagrama de Classes
+
+![Diagrama de Classe](docs/diagrama_classe.png)
+- Diagrama de Componentes
+
+![Diagrama de Componentes](docs/diagrama_componentes.png)
+- Diagrama de Sequencia
+
+![Diagrama de Sequencia](docs/diagrama_sequencia.png)
 
 ## Funcionalidades
 - Cadastro de usuários
@@ -57,4 +61,4 @@ A documentação completa do projeto está disponível na pasta `docs/`:
 - Criação de agendamentos
 - Visualização de agendamentos
 - Cancelamento de agendamentos
-- Interface gráfica intuitiva 
+- Interface gráfica simples 
