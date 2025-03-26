@@ -1,11 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
-import java.io.File;
 
 public class Main {
-    private static ArrayList<Usuario> usuarios = new ArrayList<>();
     private static ArrayList<Agendamento> agendamentos = new ArrayList<>();
     private static Usuario usuarioLogado = null;
     private static JFrame frame;
@@ -185,7 +182,7 @@ public class Main {
         Usuario usuario = db.buscarUsuario(email);
         if (usuario != null && usuario.validarSenha(senha)) {
             usuarioLogado = usuario;
-            agendamentos = db.listarAgendamentos(1); // TODO: Implementar busca por ID do usuário
+            agendamentos = db.listarAgendamentos(usuario.getId());
             cardLayout.show(mainPanel, "principal");
         } else {
             JOptionPane.showMessageDialog(frame, "Email ou senha incorretos!", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -324,7 +321,7 @@ public class Main {
         boolean encontrou = false;
 
         for (Agendamento agendamento : agendamentos) {
-            if (agendamento.getUsuarioId() == 1) { // TODO: Implementar busca por ID do usuário
+            if (agendamento.getUsuarioId() == usuarioLogado.getId()) {
                 sb.append("Data: ").append(agendamento.getData()).append("\n");
                 sb.append("Hora: ").append(agendamento.getHora()).append("\n");
                 sb.append("Descrição: ").append(agendamento.getDescricao()).append("\n");
@@ -416,7 +413,7 @@ public class Main {
 
         // Estilização
         Color corFundo = Color.WHITE;
-        Color corTexto = Color.WHITE;
+        Color corTexto = Color.BLACK;
         Color corBotao = new Color(70, 130, 180);
 
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
@@ -427,7 +424,7 @@ public class Main {
         descricaoField.setBackground(corFundo);
         descricaoField.setForeground(corTexto);
         criarButton.setBackground(corBotao);
-        criarButton.setForeground(corTexto);
+        criarButton.setForeground(Color.WHITE);
 
         criarButton.addActionListener(e -> {
             String data = dataField.getText();
@@ -439,10 +436,45 @@ public class Main {
                 return;
             }
 
-            Agendamento novoAgendamento = new Agendamento(1, data, hora, descricao); // TODO: Implementar busca por ID do usuário
+            // Validar formato da data (dd/mm/aaaa)
+            if (!data.matches("\\d{2}/\\d{2}/\\d{4}")) {
+                JOptionPane.showMessageDialog(dialog, "Formato de data inválido! Use dd/mm/aaaa", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Validar formato da hora (hh:mm)
+            if (!hora.matches("\\d{2}:\\d{2}")) {
+                JOptionPane.showMessageDialog(dialog, "Formato de hora inválido! Use hh:mm", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Validar se a data não é passada
+            try {
+                String[] partesData = data.split("/");
+                int dia = Integer.parseInt(partesData[0]);
+                int mes = Integer.parseInt(partesData[1]);
+                int ano = Integer.parseInt(partesData[2]);
+
+                String[] partesHora = hora.split(":");
+                int horaInt = Integer.parseInt(partesHora[0]);
+                int minuto = Integer.parseInt(partesHora[1]);
+
+                java.time.LocalDateTime dataHoraAgendamento = java.time.LocalDateTime.of(ano, mes, dia, horaInt, minuto);
+                java.time.LocalDateTime agora = java.time.LocalDateTime.now();
+
+                if (dataHoraAgendamento.isBefore(agora)) {
+                    JOptionPane.showMessageDialog(dialog, "Não é possível criar agendamentos em datas passadas!", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Data ou hora inválida!", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Agendamento novoAgendamento = new Agendamento(usuarioLogado.getId(), data, hora, descricao);
             if (db.criarAgendamento(novoAgendamento)) {
                 JOptionPane.showMessageDialog(dialog, "Agendamento criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                agendamentos = db.listarAgendamentos(1); // TODO: Implementar busca por ID do usuário
+                agendamentos = db.listarAgendamentos(usuarioLogado.getId());
                 dialog.dispose();
             } else {
                 JOptionPane.showMessageDialog(dialog, "Erro ao criar agendamento.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -460,7 +492,7 @@ public class Main {
         int contador = 1;
 
         for (Agendamento agendamento : agendamentos) {
-            if (agendamento.getUsuarioId() == 1) { // TODO: Implementar busca por ID do usuário
+            if (agendamento.getUsuarioId() == usuarioLogado.getId()) {
                 sb.append(contador).append(". Data: ").append(agendamento.getData())
                   .append(" Hora: ").append(agendamento.getHora())
                   .append(" Descrição: ").append(agendamento.getDescricao()).append("\n");
